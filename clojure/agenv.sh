@@ -11,8 +11,7 @@ export CLOJURE_PROJECTS=$(readlink -f "$AGRAPH_JAVA/../../..")
 
 export AGRAPH_CLOJURE=$AGRAPH_JAVA/clojure
 
-export CLASSPATH=$AGRAPH_CLOJURE/lib/clojure-1.0.jar
-export CLASSPATH=$CLASSPATH:$AGRAPH_CLOJURE/lib/clojure-contrib-1.0.jar
+export CLASSPATH=$AGRAPH_CLOJURE/libs/clojure-1.1.0.jar
 
 export CLASSPATH=$CLASSPATH:$AGRAPH_JAVA/bin
 export CLASSPATH=$CLASSPATH:$AGRAPH_JAVA/classes

@@ -10,7 +10,7 @@
   (:refer-clojure :exclude (name))
   (:import [java.io File FileWriter PrintStream]
            [tutorial TutorialExamples])
-  (:use [clojure.contrib def test-is]
+  (:use [clojure test]
         [com.franz util openrdf agraph test]
         [com.franz.agraph tutorial agtest]))
 

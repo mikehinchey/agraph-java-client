@@ -16,8 +16,7 @@
            [org.openrdf.model.impl URIImpl LiteralImpl]
            [org.openrdf.query QueryLanguage Query BindingSet Binding TupleQuery]
            [info.aduna.iteration CloseableIteration Iteration])
-  (:use [clojure.contrib def]
-        [com.franz util]))
+  (:use [com.franz util]))
 
 (alter-meta! *ns* assoc :author "Franz Inc <www.franz.com>, Mike Hinchey <mhinchey@franz.com>")
 

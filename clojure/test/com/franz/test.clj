@@ -10,7 +10,7 @@
   (:refer-clojure :exclude (name))
   (:import [java.io File OutputStream FileOutputStream FileWriter
             BufferedReader FileReader PrintStream])
-  (:use [clojure.contrib def test-is]
+  (:use [clojure test]
         [com.franz util]))
 
 (alter-meta! *ns* assoc :author "Franz Inc <www.franz.com>, Mike Hinchey <mhinchey@franz.com>")

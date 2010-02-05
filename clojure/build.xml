@@ -1,8 +1,7 @@
 <project name="clj-agraph" default="clean-build">
     
     <!-- Override these with -Dclojure.jar=... in your Ant invocation. -->
-    <property name="clojure.jar" location="lib/clojure-1.0.jar"/>
-    <property name="clojure.contrib.jar" location="lib/clojure-contrib-1.0.jar"/>
+    <property name="clojure.jar" location="libs/clojure-1.1.0.jar"/>
     
     <available property="hasclojure" file="${clojure.jar}"/>
     
@@ -30,7 +29,6 @@
         <path location="${lib}/slf4j-log4j12-1.4.3.jar"/>
         <path location="${lib}/../agraph-java-client-3.2.jar"/>
         <path location="${clojure.jar}"/>
-        <path location="${clojure.contrib.jar}"/>
     </path>
     
     <target name="compile-clojure" depends="init"

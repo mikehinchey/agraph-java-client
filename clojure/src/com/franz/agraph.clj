@@ -18,8 +18,7 @@
            [org.openrdf.repository Repository RepositoryConnection]
            [org.openrdf.model.vocabulary RDF XMLSchema]
            [org.openrdf.query QueryLanguage BindingSet Binding])
-  (:use [clojure.contrib def]
-        [com.franz util openrdf]))
+  (:use [com.franz util openrdf]))
 
 (alter-meta! *ns* assoc :author "Franz Inc <www.franz.com>, Mike Hinchey <mhinchey@franz.com>")
 

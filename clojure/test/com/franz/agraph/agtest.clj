@@ -35,7 +35,7 @@
            [org.openrdf.repository RepositoryConnection]
            [org.openrdf.repository.sail SailRepository]
            )
-  (:use [clojure.contrib def test-is]
+  (:use [clojure test]
         [com.franz util openrdf agraph test]
         [com.franz.agraph tutorial]))
 

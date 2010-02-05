@@ -8,7 +8,7 @@
 (ns com.franz.agraph.stress-conn
   "Stress test connections"
   (:refer-clojure :exclude (name))
-  (:use [clojure.contrib test-is]
+  (:use [clojure test]
         [com.franz util openrdf agraph test]
         [com.franz.agraph agtest]))
 
