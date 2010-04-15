@@ -1,34 +1,33 @@
 <project name="agraph-java-client" default="clean-build">
     
     <!-- Library. -->
-    <property name="src" location="src"/>
-    <property name="lib" location="lib"/>
-    <property name="build" location="classes"/>
-    <property name="jarfile" location="agraph-java-client-3.2.jar"/>
+    <property name="version" value="3.2"/>
+    <property name="jarfile" location="${ant.project.name}-${version}.jar"/>
+    <property name="zipfile" location="${ant.project.name}-${version}.zip"/>
     
     <path id="classpath">
-        <path location="${lib}/log4j-1.2.12.jar"/>
-        <path location="${lib}/openrdf-sesame-2.2-onejar.jar"/>
-        <path location="${lib}/slf4j-api-1.4.3.jar"/>
-        <path location="${lib}/slf4j-log4j12-1.4.3.jar"/>
-        <path location="${lib}/junit-4.7.jar"/>
+        <path location="lib/log4j-1.2.12.jar"/>
+        <path location="lib/openrdf-sesame-2.2-onejar.jar"/>
+        <path location="lib/slf4j-api-1.4.3.jar"/>
+        <path location="lib/slf4j-log4j12-1.4.3.jar"/>
+        <path location="lib/junit-4.7.jar"/>
     </path>
     
     <target name="init">
         <tstamp/>
-        <mkdir dir="${build}"/>
+        <mkdir dir="classes"/>
     </target>
     
     <target name="clean"
             description="Remove generated files and directories.">
-        <delete dir="${build}"/>
-        <delete file="${jarfile}"/>
+        <delete dir="classes" failonerror="no"/>
+        <delete file="${jarfile}" failonerror="no"/>
         <ant dir="clojure" target="clean" inheritall="false"/>
     </target>
 
     <target name="compile" depends="init"
             description="Compile Java sources.">
-        <javac srcdir="${src}" destdir="${build}"
+        <javac srcdir="src" destdir="classes"
                debug="true"
                includes="com/franz/agsail/*.java
                          com/franz/agbase/*.java
@@ -36,15 +35,14 @@
                classpathref="classpath"/>
     </target>
     
-    <manifestclasspath property="mf.path" jarfile="${jarfile}">
-        <classpath refid="classpath"/>
-    </manifestclasspath>
-    
     <target name="build"
             description="Create jar file."
             depends="clean, compile">
+        <manifestclasspath property="mf.path" jarfile="${jarfile}">
+            <classpath refid="classpath"/>
+        </manifestclasspath>
         <jar jarfile="${jarfile}">
-            <fileset dir="${build}" includes="**/*.class"/>
+            <fileset dir="classes" includes="**/*.class"/>
             <manifest>
                 <attribute name="Class-Path" value="${mf.path}"/>
             </manifest>
@@ -83,12 +81,12 @@
     <target name="tutorial"
             depends="compile"
             description="Run tutorial example.">
-        <javac srcdir="tutorial" destdir="${build}"
+        <javac srcdir="tutorial" destdir="classes"
                debug="true"
                includes="*.java"
                classpathref="classpath"/>
         <run-java tasknamex="tutorial" classname="AGExample">
-            <arg value="-p"/><arg value="8080"/>
+            <arg value="-p"/><arg value="4567"/>
             <arg value="-d"/><arg value="/tmp/ag32jee/scratch/"/>
             <arg value="-n"/><arg value="tutorial"/>
         </run-java>
@@ -97,7 +95,7 @@
     <target name="dist"
             depends="clean"
             description="Zips source and jar">
-        <zip destfile="agraph-java-client-3.2.zip"
+        <zip destfile="${zipfile}"
              basedir="."
              includes="*.*, src/**, test/**, tutorial/**, clojure/**, lib/**"
              excludes=".git, *.zip, agraph-3.2.jar, clojure/classes"/>
