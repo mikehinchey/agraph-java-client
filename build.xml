@@ -109,13 +109,6 @@
         <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
                  uri="antlib:org.apache.maven.artifact.ant"
                  classpathref="maven-ant-tasks.classpath" />
-        <!-- <jar jarfile="tmp/agraph-full.jar"> -->
-        <!--     <fileset dir="${build}" includes="**/*.class"/> -->
-        <!--     <zipfileset src="${lib}/sesame-2.2.4/openrdf-sesame-2.2.4-onejar.jar"/> -->
-        <!-- </jar> -->
-        <!-- <jar jarfile="tmp/sesame-full.jar"> -->
-        <!--     <zipfileset src="${lib}/"/> -->
-        <!-- </jar> -->
         <artifact:pom id="agraph" file="pom.xml" />
         <artifact:install file="${jarfile}">
             <pom refid="agraph"/>

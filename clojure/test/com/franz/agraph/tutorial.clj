@@ -31,7 +31,8 @@
                             :repository "tutorial"})
 
   ;; Optional, for convenience in the REPL:
-  (use '[clojure.contrib stacktrace repl-utils trace pprint])
+  (use '[clojure stacktrace])
+  (use '[clojure.contrib repl-utils trace pprint])
 
   ;; Execute the examples: test1-test16
   (example1)
