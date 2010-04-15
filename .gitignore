@@ -4,3 +4,4 @@ bin
 *.jar
 classes
 eclipse
+clojure/pom.xml

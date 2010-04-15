@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.franz</groupId>
+    <artifactId>agraph-java-client</artifactId>
+    <version>3.2</version>
+    <name>agraph-java-client</name>
+    <description>Java client API for Franz AllegroGraph 3.2</description>
+    <licenses>
+        <license>
+            <name>Eclipse Public License 1.0</name>
+            <url>http://opensource.org/licenses/eclipse-1.0.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <!-- <repository> -->
+        <!--     <releases> -->
+        <!--         <enabled>true</enabled> -->
+        <!--     </releases> -->
+        <!--     <snapshots> -->
+        <!--         <enabled>false</enabled> -->
+        <!--     </snapshots> -->
+        <!--     <id>aduna-opensource.releases</id> -->
+        <!--     <name>Aduna Open Source - Maven releases</name> -->
+        <!--     <url>http://repo.aduna-software.org/maven2/releases</url> -->
+        <!-- </repository> -->
+    </repositories>
+    <dependencies>
+        <!-- <dependency> -->
+        <!--     <groupId>org.apache.maven</groupId> -->
+        <!--     <artifactId>maven-ant-tasks</artifactId> -->
+        <!--     <version>2.0.10</version> -->
+        <!-- </dependency> -->
+        <!-- <dependency> -->
+        <!--     <groupId>org.openrdf.sesame</groupId> -->
+        <!--     <artifactId>sesame</artifactId> -->
+        <!--     <version>2.2</version> -->
+        <!-- </dependency> -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- <dependency> -->
+        <!--     <groupId>com.franz</groupId> -->
+        <!--     <artifactId>jena</artifactId> -->
+        <!--     <version>2.6.0</version> -->
+        <!-- </dependency> -->
+        <dependency>
+            <groupId>com.franz</groupId>
+            <artifactId>openrdf-sesame-onejar</artifactId>
+            <version>2.2</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.12</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hp.hpl.jena</groupId>
+            <artifactId>jena</artifactId>
+            <version>2.5.6</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.hp.hpl.jena</groupId>
+                    <artifactId>iri</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>antlr</groupId>
+                    <artifactId>antlr</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.hp.hpl.jena</groupId>
+                    <artifactId>concurrent-jena</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.ibm.icu</groupId>
+                    <artifactId>icu4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xmlParserAPIs</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.hp.hpl.jena</groupId>
+            <artifactId>arq</artifactId>
+            <version>2.5.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>stax</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>woodstox</groupId>
+                    <artifactId>wstx-asl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.hp.hpl.jena</groupId>
+                    <artifactId>json-jena</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+        
+    </dependencies>
+</project>

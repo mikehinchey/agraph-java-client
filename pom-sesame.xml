@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.franz</groupId>
+    <artifactId>openrdf-sesame-onejar</artifactId>
+    <version>2.2</version>
+    <name>openrdf-sesame-onejar</name>
+    <description>OpenRDF-Sesame packaged by Franz for use with agraph-java-client with AllegroGraph 3.2</description>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2</url>
+        </repository>
+    </repositories>
+    <dependencies>
+        <!-- <dependency> -->
+        <!--     <groupId>commons-logging</groupId> -->
+        <!--     <artifactId>commons-logging</artifactId> -->
+        <!--     <version>1.1.1</version> -->
+        <!-- </dependency> -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.12</version>
+        </dependency>
+        <!-- <dependency> -->
+        <!--     <groupId>commons-codec</groupId> -->
+        <!--     <artifactId>commons-codec</artifactId> -->
+        <!--     <version>1.3</version> -->
+        <!-- </dependency> -->
+        <!-- <dependency> -->
+        <!--     <groupId>commons-httpclient</groupId> -->
+        <!--     <artifactId>commons-httpclient</artifactId> -->
+        <!--     <version>3.1</version> -->
+        <!--     <exclusions> -->
+        <!--         <exclusion> -->
+        <!--             <groupId>junit</groupId> -->
+        <!--             <artifactId>junit</artifactId> -->
+        <!--         </exclusion> -->
+        <!--         <exclusion> -->
+        <!--             <groupId>commons-codec</groupId> -->
+        <!--             <artifactId>commons-codec</artifactId> -->
+        <!--         </exclusion> -->
+        <!--         <exclusion> -->
+        <!--             <groupId>commons-logging</groupId> -->
+        <!--             <artifactId>commons-logging</artifactId> -->
+        <!--         </exclusion> -->
+        <!--     </exclusions>  -->
+        <!-- </dependency> -->
+    </dependencies>
+</project>

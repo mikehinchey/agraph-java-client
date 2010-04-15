@@ -6,10 +6,9 @@ triple store database.
 This [agraph-java-client](http://github.com/franzinc/agraph-java-client) provides:
 
 * Java client API
-* Adapter for [Sesame](http://www.openrdf.org/) 2.2.4,
-  ([API](http://www.openrdf.org/doc/sesame2/2.2.4/apidocs/))
-* Adapter for Jena 2.5
-* [Clojure](http://clojure.org) client API
+* Adapter for Sesame
+* Adapter for Jena
+* Clojure client API
 
 [AllegroGraph Docs](http://www.franz.com/agraph/support/documentation/current/)
 
@@ -43,7 +42,7 @@ Jena 2.5
 
 ## Clojure
 
-Uses Clojure 1.1
+Uses [Clojure](http://clojure.org) 1.1
 
 The tutorial included is similar to the Python tutorial:
 
@@ -52,4 +51,27 @@ The tutorial included is similar to the Python tutorial:
 * [Python API](http://github.com/franzinc/agraph-python/tree/agraph32)
 
 agclj.sh can be used to start a Clojure REPL in Emacs/Slime or in a console. It depends on agraph-java.
+
+
+## Development
+
+For Ant users, the Java library includes build.xml. The following
+command line will build the agraph-java-client jar:
+
+    <code>ant build</code>
+
+For Maven users, the Java library includes pom.xml and an Ant target
+to install. A pom-sesame.xml is also included because this library is not
+available in another public maven repo. The following command line
+will build and install the jars for agraph-java-client and
+openrdf-sesame to your local maven directory (~/.m2/).
+
+    <code>ant mvn-install</code>
+
+The Clojure library includes a project.clj for use with Leiningen. It
+depends on the agraph-java-client, so you will need to use the
+mvn-install command above before using lein. The following command
+line will install all dependencies in agraph-java-client/clojure/lib/.
+
+    <code>lein deps</code>
 
