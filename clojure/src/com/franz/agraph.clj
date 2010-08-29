@@ -1,58 +1,44 @@
-;; This software is Copyright (c) Franz, 2009.
-;; Franz grants you the rights to distribute
-;; and use this software as governed by the terms
-;; of the Lisp Lesser GNU Public License
-;; (http://opensource.franz.com/preamble.html),
-;; known as the LLGPL.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Copyright (c) 2008-2010 Franz Inc.
+;; All rights reserved. This program and the accompanying materials
+;; are made available under the terms of the Eclipse Public License v1.0
+;; which accompanies this distribution, and is available at
+;; http://www.eclipse.org/legal/epl-v10.html
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (ns com.franz.agraph
-  "Clojure client API to Franz AllegroGraph 4.0.
+  "Clojure client API to Franz AllegroGraph 4.1.
  This API wraps the agraph-java-client API, which is an extension of the Sesame org.openrdf API.
  Communication with the server is through HTTP REST using JSON.
- Uses the Franz Clojure wrapper of Sesame in com/franz/openrdf.clj."
-  (:refer-clojure :exclude (name))
-  (:import [clojure.lang Named]
-           [com.franz.agraph.repository
+ Uses the Franz Clojure wrapper of Sesame in com.franz.openrdf."
+  (:refer-clojure :exclude [name with-open])
+  (:import [com.franz.agraph.repository
             AGCatalog AGQueryLanguage AGRepository
             AGRepositoryConnection AGServer AGValueFactory]
-           [java.net URI]
-           [org.openrdf.model ValueFactory Resource Literal Statement]
+           [org.openrdf.model ValueFactory Resource Literal Statement URI]
            [org.openrdf.repository Repository RepositoryConnection]
            [org.openrdf.model.vocabulary RDF XMLSchema]
            [org.openrdf.query QueryLanguage BindingSet Binding])
-  (:use [clojure.contrib def]
-        [com.franz util openrdf]))
+  (:use [com.franz util openrdf]))
 
 (alter-meta! *ns* assoc :author "Franz Inc <www.franz.com>, Mike Hinchey <mhinchey@franz.com>")
 
-(defmulti name
-  "Shadows clojure.core/name to make it an extensible method."
-  type)
-
-(defmethod name :default [x] (.getName x))
-
-;; same as the clojure.core fn name
-(defmethod name clojure.lang.Named [#^clojure.lang.Named x] (clojure.core/name x))
-
 (defmethod name AGRepository [#^AGRepository x] (.getRepositoryID x))
+
+(defmethod name AGRepositoryConnection [#^AGRepositoryConnection x] (name (.getRepository x)))
 
 (defmethod name AGCatalog [#^AGCatalog x] (.getCatalogName x))
 
-(defmethod close AGCatalog [#^AGCatalog obj])
-
-;; (defn connect-agraph
-;;   "returns a connection to AllegroGraph server, for the HTTP REST API"
-;;   {:tag AGServer}
-;;   ([host port] (connect host port nil nil))
-;;   ([host port username password]
-;;      (AGServer. host port)))
+(defn ag-server
+  [{:keys [url username password]}]
+  (open (AGServer. url username password)))
 
 (defn catalogs
-  "Returns a seq of AGCatalogs objects."
+  "Returns a seq of String names."
   [#^AGServer server]
   (seq (.listCatalogs server)))
 
-(defn open-catalog
+(defn ag-catalog
   "Returns an AGCatalog."
   {:tag AGCatalog}
   [#^AGServer server name]
@@ -61,16 +47,7 @@
 (defn repositories
   "Returns a seq of AGRepository objects."
   [#^AGCatalog catalog]
-  (seq (.getAllRepositories catalog)))
-
-;; (def #^{:private true} -access-verbs
-;;      {:renew AGRepository/RENEW
-;;       :create AllegroRepository/CREATE
-;;       :open AllegroRepository/OPEN
-;;       :access AllegroRepository/ACCESS})
-;; (def access-verbs (set (keys -access-verbs)))
-
-(def lang-prolog (AGQueryLanguage/PROLOG))
+  (seq (.listRepositories catalog)))
 
 (defn repository
   "access-verb must be a keyword from the set of access-verbs."
@@ -80,7 +57,7 @@
                               )))
   ;; TODO: this may be confusing since it doesn't open a repository,
   ;; only gets a reference.
-  ([#^Repository rcon]
+  ([#^RepositoryConnection rcon]
      (.getRepository rcon)))
 
 (defn ag-repo-con
@@ -99,57 +76,6 @@
                                                 rcons)))
       open repo-init (repo-connection rcon-args)))
 
-(defn ag-server
-  [url username password]
-  (AGServer. url username password))
-
-(defn with-agraph-fn
-  "catalog, repository, and repository-connection are optional: they are only
-   opened if specified in the arguments.
-  
-     access:    a keyword from the set of 'access-verbs.
-     my-fn:     a function of 4 args [conn cat repos repos-conn]
-                catalog and rcon will be closed when this block exits.
-     rcon-args: if nil, no rcon will be created. Arguments passed to
-                franz.openrdf/repo-connection."
-  [[{:keys [host port username password]}
-    catalog-name
-    {:keys [name access]}
-    rcon-args]
-   my-fn]
-  (with-open2 []
-    (let [conn (ag-server (str "http://" host ":" port) username password)]
-      (if catalog-name
-        (let [cat (open-catalog conn catalog-name)]
-          (with-open2 [repo (when name
-                              (repo-init (repository cat name access)))
-                       rcon (when rcon-args
-                              (repo-connection repo rcon-args))]
-            (my-fn conn cat repo rcon)))
-        (my-fn conn nil nil nil)))))
-
-(defmacro with-agraph
-  "catalog, repository, and repository-connection are optional - they are only opened if specified in the args.
-access: a keyword from the set of 'access-verbs.
-catalog and repository-connection will be closed when this block exits.
-rcon-args: optional, args passed to franz.openrdf/repo-connection.
-Example: (with-agraph [conn {:host \"localhost\" :port 8080
-                             :username name :password pw}
-                       catalog \"scratch\"
-                       repo {:name \"agraph_test\" :access :renew}
-                       rcon {:auto-commit true :namespaces {\"ns-prefix\" \"ns\"}}]
-            (println conn))"
-  [[conn-sym {host :host port :port username :username password :password :as conn-args}
-    cat-sym cat-name
-    repo-sym {repos-name :name repos-access :access :as repo-args}
-    rcon-sym rcon-args]
-   & body]
-  `(with-agraph-fn [~conn-args ~cat-name ~repo-args
-                    ;; rcon-args should be nil if no rcon-sym is wanted
-                    ~(or rcon-args (when rcon-sym {}))]
-     (fn [~conn-sym ~(or cat-sym '_) ~(or repo-sym '_) ~(or rcon-sym '_)]
-       ~@body)))
-
 (defn add-from-server!
   ;; Different name from add-from! to make it less ambiguous.
   ;; This is an AllegroGraph extension to the openrdf api.
@@ -163,4 +89,10 @@ Example: (with-agraph [conn {:host \"localhost\" :port 8080
    #^String baseURI
    #^RDFFormat dataFormat
    & contexts]
-  (.add repos-conn data baseURI dataFormat true (resource-array contexts)))
+  (.add repos-conn data baseURI dataFormat (resource-array contexts)))
+
+(defn create-freetext-index
+  [^AGRepositoryConnection repo
+   ^String name
+   & predicates]
+  (.createFreetextIndex repo name (into-array URI predicates)))

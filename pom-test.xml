@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.clojars.mikehinchey</groupId>
+    <artifactId>agraph-java-client-test</artifactId>
+    <version>4.0.5d-rfe9969-snapshot</version>
+    <name>agraph-java-client-test</name>
+    <description>Test code for Java client API for Franz AllegroGraph v4</description>
+    <licenses>
+        <license>
+            <name>Eclipse Public License 1.0</name>
+            <url>http://opensource.org/licenses/eclipse-1.0.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <repositories>
+        <repository>
+            <id>clojars</id>
+            <url>http://clojars.org/repo</url>
+        </repository>
+    </repositories>
+    <dependencies>
+        <dependency>
+            <groupId>com.franz</groupId>
+            <artifactId>agraph-java-client</artifactId>
+            <version>4.0.5d</version>
+        </dependency>
+    </dependencies>
+</project>

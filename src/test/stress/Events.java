@@ -15,6 +15,7 @@ import static test.AGAbstractTest.username;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Formatter;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -456,6 +457,22 @@ public class Events {
 			
 			return index;
 		}
+		
+	}
+	
+	/**
+	 * This function is used in clojure stress testing.
+	 */
+	public static Collection<Statement> makeTriples(ValueFactory vf, int triples, int events) {
+        RandomCalendar.dateMaker = BaselineRange;
+        ThreadVars.valueFactory.set(vf);
+	    AllEvents.initialize();
+        Vector<Statement> stmts = new Vector<Statement>(triples * events);
+        stmts.setSize(triples * events);
+    	for (int event = 0, index = 0; event < events; event++) {
+    		index = AllEvents.makeEvent(stmts, index);
+    	}
+		return stmts;
 	}
 	
 	private static class Loader implements Callable<Integer> {

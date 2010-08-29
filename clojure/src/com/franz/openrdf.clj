@@ -1,13 +1,14 @@
-;; This software is Copyright (c) Franz, 2009.
-;; Franz grants you the rights to distribute
-;; and use this software as governed by the terms
-;; of the Lisp Lesser GNU Public License
-;; (http://opensource.franz.com/preamble.html),
-;; known as the LLGPL.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Copyright (c) 2008-2010 Franz Inc.
+;; All rights reserved. This program and the accompanying materials
+;; are made available under the terms of the Eclipse Public License v1.0
+;; which accompanies this distribution, and is available at
+;; http://www.eclipse.org/legal/epl-v10.html
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (ns com.franz.openrdf
   "Clojure wrapper of the Sesame (org.openrdf) Java API. See http://www.openrdf.org/"
-  (:refer-clojure :exclude (name))
+  (:refer-clojure :exclude [name with-open])
   (:import [clojure.lang Named]
            [java.net URI]
            [org.openrdf.model ValueFactory Resource Literal Statement]
@@ -17,8 +18,7 @@
            [org.openrdf.model.impl URIImpl LiteralImpl]
            [org.openrdf.query QueryLanguage Query BindingSet Binding TupleQuery]
            [info.aduna.iteration CloseableIteration Iteration])
-  (:use [clojure.contrib def]
-        [com.franz util]))
+  (:use [com.franz util]))
 
 (alter-meta! *ns* assoc :author "Franz Inc <www.franz.com>, Mike Hinchey <mhinchey@franz.com>")
 
@@ -32,22 +32,25 @@
 
 (defstruct statement :s :p :o)
 
-(defstruct statement4 :s :p :o :context)
+(defstruct statement4 :s :p :o :c)
 
 (defmulti to-statement "convert some object to a statement map" type)
 
 (let [convert-keys {"s" :s "o" :o "p" :p}]
   (defmethod to-statement BindingSet
     [#^BindingSet bset]
-    #^{:type :statement}
-    (loop [binds (iterator-seq (.iterator bset))
-           result {}]
-      (if (seq binds)
-        (let [#^Binding b (first binds)]
-          (recur (next binds)
-                 (assoc result (get convert-keys (.getName b) (.getName b))
-                        (.getValue b))))
-        result))))
+    (let [stmt #^{:type :statement} (struct statement (.getValue bset "s")
+                                            (.getValue bset "p") (.getValue bset "o"))]
+      (loop [binds (iterator-seq (.iterator bset))
+             result stmt]
+        (if (seq binds)
+          (let [#^Binding b (first binds)]
+            (recur (next binds)
+                   (let [n (.getName b)]
+                     (if (convert-keys n)
+                       result
+                       (assoc result n (.getValue b))))))
+          (with-meta result {:type :statement}))))))
 
 (defmethod to-statement Statement
   [#^Statement obj]
@@ -76,15 +79,29 @@
                (struct statement4 (obj 0) (obj 1) (obj 2) (obj 3)))
     {:type :statement}))
 
-;(prefer-method to-statement clojure.lang.Sequential clojure.lang.Associative)
+(defn to-openrdf-statement
+  "convert some object to a statement map"
+  [#^ValueFactory vf
+   st]
+  (cond (instance? Statement st)
+        st
+        (map? st)
+        (.createStatement vf (st :s) (st :p) (st :o) (st :c))
+        (instance? java.util.List st)
+        (.createStatement vf (nth st 0) (nth st 1) (nth st 2) (nth st 3 nil))
+        :else (throw (RuntimeException. (str "Unknown type of statement: " (class st))))))
 
 (defmethod close Repository
   [#^Repository obj]
   (.shutDown obj))
 
+(prefer-method close com.franz.util.Closeable Repository)
+
 (defmethod close RepositoryConnection
   [#^RepositoryConnection obj]
   (.close obj))
+
+(prefer-method close com.franz.util.Closeable RepositoryConnection)
 
 (defmethod close CloseableIteration
   [#^CloseableIteration obj]
@@ -101,7 +118,7 @@
 (defn repo-connection
   ""
   ([#^Repository repo]
-     (.getConnection repo))
+     (open (.getConnection repo)))
   ([#^Repository repo {auto-commit :auto-commit
                        namespaces :namespaces}]
      (let [#^RepositoryConnection rcon (open (.getConnection repo))]
@@ -112,7 +129,7 @@
        rcon)))
 
 (defn repo-init
-  "Warning: the object needs to be closed with (close)."
+  "Warning: the object needs to be closed with (close!)."
   [#^Repository repo]
   (.initialize repo)
   repo)
@@ -160,14 +177,16 @@
        ;; compiler fails to resolve #^LResource in this one
        (.add rcon #^Statement stmt (into-array Resource contexts))
        (let [stmt (to-statement stmt)]
-         (.add rcon (:s stmt) (:p stmt) (:o  stmt)
-               (resource-array (if-let [c (:context stmt)] [c] contexts)))))))
+         (.add rcon (:s stmt) (:p stmt) (:o stmt)
+               (resource-array (if-let [c (:c stmt)] [c] contexts)))))))
 
 (defn add-all!
   "stmts: a seq where each may be a Statement or a (vector subject predicate object)"
   [#^RepositoryConnection rcon,
    stmts & contexts]
-  (doseq [st stmts] (add! rcon st contexts)))
+  (let [vf (value-factory rcon)]
+    (.add rcon #^java.lang.Iterable
+          (map #(to-openrdf-statement vf %) stmts) (into-array Resource contexts))))
 
 (defn add-from!
   ;; Different name from add! to make it less ambiguous.
@@ -183,19 +202,18 @@
   (.add rcon data baseURI dataFormat (resource-array contexts)))
 
 (defn remove!
-  [;; clojure compiler bug? error if this is hinted.
-   ;; #^RepositoryConnection
-   repos-conn
-   #^Resource subject
-   #^URI predicate
-   #^Value object
+  [#^RepositoryConnection rcon
+   stmt
    & contexts]
-  (.remove repos-conn subject predicate object (resource-array contexts)))
+  (let [stmt (to-statement stmt)]
+    (.remove rcon (:s stmt) (:p stmt) (:o stmt)
+             (resource-array (if-let [c (:c stmt)] [c] contexts)))))
 
 (defn clear!
   [#^RepositoryConnection rcon
    & contexts]
-  (.clear rcon (resource-array contexts)))
+  (.clear rcon (resource-array contexts))
+  rcon)
 
 (defn repo-size
   "http://www.openrdf.org/doc/sesame2/2.2/apidocs/org/openrdf/repository/RepositoryConnection.html#size(org.openrdf.model.Resource...)"
@@ -274,24 +292,30 @@
                            (.prepareBooleanQuery #^RepositoryConnection rcon qlang query base-uri)
                            (.prepareBooleanQuery #^RepositoryConnection rcon qlang query))]
     (prepare-query! q prep)
-    ((.evaluate q))))
+    (.evaluate q)))
 
 (defn get-statements
   "Returns a seq of maps (to-statement).
   Must be called within a with-open2, and this will close the result seq."
-  [;#^RepositoryConnection
-   rcon
-   #^Resource subj
-   #^URI pred
-   #^Value obj
-   {#^Boolean include-inferred :include-inferred
-    #^Boolean filter-dups :filter-dups}
-   & contexts]
-  (let [#^RepositoryResult result
-        (.getStatements rcon subj pred obj
+  ([;#^RepositoryConnection
+    rcon
+    [#^Resource subj
+     #^URI pred
+     #^Value obj]
+    {:keys [#^Boolean include-inferred
+            #^Boolean filter-dups
+            contexts]}]
+     (let [#^RepositoryResult result
+           (.getStatements rcon subj pred obj
                         (if (nil? include-inferred) false include-inferred)
                         (resource-array contexts))]
-    (open result)
-    (when filter-dups
-      (.enableDuplicateFilter result))
-    (map to-statement (iteration-seq result))))
+       (open result)
+       (when filter-dups
+         (.enableDuplicateFilter result))
+       (map to-statement (iteration-seq result))))
+  ([rcon
+    [#^Resource subj
+     #^URI pred
+     #^Value obj
+     :as stmt]]
+     (get-statements rcon stmt nil)))
